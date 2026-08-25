@@ -50,10 +50,9 @@ Also verify that the Docker daemon is reachable:
 docker info
 ```
 
-The repository does not yet provide a one-command setup. Until that workflow
-is implemented and validated, do not assume that the files under `k8s/` are a
-complete installation procedure. The next Sprint 1 steps will add the build,
-image loading, cluster setup and teardown commands.
+The repository now provides a Bash setup workflow. Its reuse path has been
+validated against the local Kind cluster; the complete path from an absent
+cluster will be validated after the matching teardown script is available.
 
 ### Run the application tests
 
@@ -91,6 +90,25 @@ docker image inspect k8s-java-lab/user-service:1.0
 docker image inspect k8s-java-lab/order-service:1.0
 ```
 
+### Set up the Kubernetes lab
+
+The Bash setup script performs preflight checks, builds both images, creates or
+reuses the `k8s-java-lab` Kind cluster, loads the images, applies the Sprint 1
+manifests and waits for both Deployments:
+
+```bash
+bash scripts/setup.sh
+```
+
+The script refuses an unexpected Kubernetes context and passes the approved
+context explicitly to mutating `kubectl` commands. See the
+[script reference](scripts/README.md) for its workflow, safety properties,
+expected output and troubleshooting commands.
+
+The branch that creates a completely absent cluster will be validated after
+the matching destroy script is implemented. The currently validated path
+reuses the existing local cluster.
+
 ## Architecture overview
 
 ```mermaid
@@ -116,6 +134,7 @@ See the [detailed architecture documentation](docs/architecture/README.md).
 
 - [Architecture](docs/architecture/README.md)
 - [Sprint 1 learning journal](docs/sprints/sprint-1.md): incremental build, commands and observations
+- [Lab scripts](scripts/README.md): setup workflow, safety and troubleshooting
 - [Demo 1](docs/demo-1/README.md): notes and demonstrated Kubernetes features
 - [Watch Demo 1](docs/demo-1/From%20Java%20to%20Kubernetes%20Demo%201.mp4)
 

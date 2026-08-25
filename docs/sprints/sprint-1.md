@@ -187,12 +187,31 @@ Local client
 - [x] Resources use consistent labels and selectors.
 - [x] Both applications have internal ClusterIP Services.
 - [x] The Order-to-User request path has been demonstrated.
-- [ ] Local images are loaded into Kind automatically.
-- [ ] Cluster setup and teardown are automated.
+- [x] Local images are loaded into Kind automatically.
+- [x] The setup script builds, loads, applies and waits for the applications.
+- [ ] Cluster teardown is automated.
 - [ ] The entire workflow is validated from a clean cluster.
 
 ## Next step
 
-Load the two local images into Kind explicitly, verify that every node can use
-them and document the difference between the host Docker image store and the
-container runtime inside Kind nodes.
+Implement a narrowly scoped, idempotent `destroy.sh`. Once it is reviewed, use
+it to remove the local cluster and validate the full `cluster absent -> setup ->
+applications ready` path.
+
+## Setup automation
+
+The first automation script is now available at `scripts/setup.sh`. It was
+built incrementally to make the Bash and Kubernetes safety decisions explicit:
+
+- strict Bash error handling;
+- repository paths resolved from the script location;
+- required files and commands checked before mutation;
+- Docker daemon health checked;
+- fixed cluster, context and namespace names;
+- existing cluster reused and missing cluster created;
+- local images built and loaded into Kind;
+- Kubernetes mutations bound to the approved context;
+- rollout waits bounded to 180 seconds with failure diagnostics.
+
+The detailed operational reference is maintained in
+[`scripts/README.md`](../../scripts/README.md).
