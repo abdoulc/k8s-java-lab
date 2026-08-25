@@ -14,6 +14,83 @@ how Kubernetes reacts.
 The goal is to document the journey from a simple Spring Boot application
 to a more complete Kubernetes-based deployment.
 
+## Prerequisites
+
+The lab is currently developed and validated from Windows with PowerShell.
+Linux and macOS scripts will be added after the Windows setup is reproducible.
+
+| Tool | Requirement | Used for |
+| --- | --- | --- |
+| Java | JDK 21 or newer | Compiling the Spring Boot services targeting Java 21 |
+| Maven | 3.8 or newer | Building and testing both services |
+| Docker | Docker Engine or Docker Desktop, using Linux containers | Building images and running Kind |
+| Docker Compose | Compose v2 (`docker compose`) | Running the services without Kubernetes |
+| Kind | A recent version | Creating the local Kubernetes cluster |
+| kubectl | A version compatible with the Kind cluster | Deploying and observing Kubernetes resources |
+| PowerShell | 7 recommended | Running the initial setup and experiment scripts |
+
+Docker Desktop users must enable hardware virtualization and start Docker
+before creating the cluster. Allocate enough resources for three Kind nodes;
+4 CPUs and 6 GB of memory available to Docker are a practical starting point.
+
+Verify the workstation before continuing:
+
+```powershell
+java -version
+mvn -version
+docker version
+docker compose version
+kind version
+kubectl version --client
+```
+
+Also verify that the Docker daemon is reachable:
+
+```powershell
+docker info
+```
+
+The repository does not yet provide a one-command setup. Until that workflow
+is implemented and validated, do not assume that the files under `k8s/` are a
+complete installation procedure. The next Sprint 1 steps will add the build,
+image loading, cluster setup and teardown commands.
+
+### Run the application tests
+
+Each service has focused HTTP controller tests. Run them independently from the
+repository root:
+
+```powershell
+mvn -f services/user-service/pom.xml test
+mvn -f services/order-service/pom.xml test
+```
+
+### Build the applications
+
+Build and test the executable JARs locally:
+
+```powershell
+mvn -f services/user-service/pom.xml clean package
+mvn -f services/order-service/pom.xml clean package
+```
+
+The Dockerfiles are multi-stage builds. They compile and test their service in
+a Maven builder image, then copy only the executable JAR into a Java runtime
+image. A pre-existing local `target/` directory is therefore not required.
+
+Build both container images from the repository root:
+
+```powershell
+docker compose build
+```
+
+Verify the expected local image tags:
+
+```powershell
+docker image inspect k8s-java-lab/user-service:1.0
+docker image inspect k8s-java-lab/order-service:1.0
+```
+
 ## Architecture overview
 
 ```mermaid
