@@ -3,18 +3,26 @@ kind: Deployment
 
 metadata:
   name: user-service
+  namespace: k8s-java-lab
+  labels:
+    app.kubernetes.io/name: user-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: k8s-java-lab
 
 spec:
-  replicas: 3
+  replicas: 1
 
   selector:
     matchLabels:
-      app: user-service
+      app.kubernetes.io/name: user-service
+     
 
   template:
     metadata:
       labels:
-        app: user-service
+        app.kubernetes.io/name: user-service
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: k8s-java-lab
 
     spec:
       containers:

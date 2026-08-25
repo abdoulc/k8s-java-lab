@@ -3,6 +3,11 @@ kind: HorizontalPodAutoscaler
 
 metadata:
   name: user-service
+  namespace: k8s-java-lab
+  labels:
+    app.kubernetes.io/name: user-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: k8s-java-lab
 
 spec:
   scaleTargetRef:

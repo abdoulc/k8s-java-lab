@@ -3,10 +3,14 @@ kind: Service
 
 metadata:
   name: user-service
-
+  namespace: k8s-java-lab
+  labels:
+    app.kubernetes.io/name: user-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: k8s-java-lab
 spec:
   selector:
-    app: user-service
+    app.kubernetes.io/name: user-service
 
   ports:
     - protocol: TCP

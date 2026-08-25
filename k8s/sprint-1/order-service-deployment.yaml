@@ -3,18 +3,25 @@ kind: Deployment
 
 metadata:
   name: order-service
+  namespace: k8s-java-lab
+  labels:
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: k8s-java-lab
 
 spec:
   replicas: 2
 
   selector:
     matchLabels:
-      app: order-service
+      app.kubernetes.io/name: order-service
 
   template:
     metadata:
       labels:
-        app: order-service
+        app.kubernetes.io/name: order-service
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/part-of: k8s-java-lab
 
     spec:
       containers:
