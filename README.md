@@ -95,11 +95,16 @@ docker image inspect k8s-java-lab/order-service:1.0
 
 ```mermaid
 flowchart LR
-    Order[Order Service<br/>Deployment] -->|HTTP<br/>user-service:8080| Service[User Service<br/>ClusterIP]
-    Service --> Pods[User Service Pods<br/>readiness + liveness probes]
-    HPA[HPA<br/>60% CPU target<br/>1–5 replicas] -. scales .-> Pods
+    Client[Local client] -. port-forward .-> OrderService[Order Service<br/>ClusterIP :8080]
+    OrderService --> OrderPods[Order Service Pods]
+    OrderPods -->|HTTP<br/>user-service:8080| UserService[User Service<br/>ClusterIP :8080]
+    UserService --> UserPods[User Service Pods<br/>readiness + liveness probes]
+    HPA[HPA<br/>60% CPU target<br/>1–5 replicas] -. scales .-> UserPods
 ```
 
+- Both services are isolated in the `k8s-java-lab` namespace.
+- Kubernetes recommended labels connect Services to their Pods.
+- The `order-service` ClusterIP provides a stable endpoint for the application entry point.
 - `order-service` calls User Service through Kubernetes internal DNS.
 - The `user-service` ClusterIP routes traffic only to ready Pods.
 - The Deployment provides self-healing and rolling updates.
@@ -110,6 +115,7 @@ See the [detailed architecture documentation](docs/architecture/README.md).
 ## Documentation
 
 - [Architecture](docs/architecture/README.md)
+- [Sprint 1 learning journal](docs/sprints/sprint-1.md): incremental build, commands and observations
 - [Demo 1](docs/demo-1/README.md): notes and demonstrated Kubernetes features
 - [Watch Demo 1](docs/demo-1/From%20Java%20to%20Kubernetes%20Demo%201.mp4)
 
@@ -121,6 +127,9 @@ See the [detailed architecture documentation](docs/architecture/README.md).
 | Deployment | Desired state and replica management |
 | Service | Stable networking for Pods |
 | DNS | Service-to-service discovery |
+| Namespace | Isolates and scopes the lab resources |
+| Labels and selectors | Connect and query related Kubernetes objects |
+| EndpointSlice | Shows the Pod endpoints selected by a Service |
 | Readiness Probe | Controls whether a Pod receives traffic |
 | Liveness Probe | Determines whether a container should be restarted |
 | Startup Probe | Gives slow-starting applications time to initialize |

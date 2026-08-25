@@ -11,11 +11,14 @@ flowchart LR
     subgraph Cluster[Local Kubernetes cluster]
         direction LR
 
+        subgraph Namespace[k8s-java-lab namespace]
+
         subgraph Orders[Order Service Deployment]
             O1[order-service Pod]
             O2[order-service Pod]
         end
 
+        OSVC[order-service<br/>ClusterIP :8080]
         USVC[user-service<br/>ClusterIP :8080]
 
         subgraph Users[User Service Deployment]
@@ -26,15 +29,18 @@ flowchart LR
 
         HPA[HorizontalPodAutoscaler<br/>CPU target: 60%<br/>1–5 replicas]
 
-        O1 -->|HTTP| USVC
-        O2 -->|HTTP| USVC
+        OSVC --> O1
+        OSVC --> O2
+        O1 -->|HTTP<br/>user-service:8080| USVC
+        O2 -->|HTTP<br/>user-service:8080| USVC
         USVC --> U1
         USVC --> U2
         USVC --> UN
         HPA -. scales .-> Users
+        end
     end
 
-    Client -. demo traffic .-> USVC
+    Client -. port-forward .-> OSVC
 ```
 
 ## Components
@@ -45,9 +51,14 @@ flowchart LR
 | User Service | ClusterIP Service | Provides the stable `user-service:8080` endpoint and routes traffic to ready Pods. |
 | User Service | HPA | Scales the Deployment from 1 to 5 replicas around a 60% average CPU target. |
 | Order Service | Deployment | Runs the order API and calls User Service through internal DNS. |
+| Order Service | ClusterIP Service | Provides the stable `order-service:8080` application entry point inside the cluster. |
 
-`order-service` intentionally has no Kubernetes Service in this iteration:
-nothing inside the cluster needs a stable network endpoint to call it yet.
+Both workloads run in the `k8s-java-lab` namespace. Their resources use the
+`app.kubernetes.io/name`, `app.kubernetes.io/component` and
+`app.kubernetes.io/part-of` labels. Services select Pods by application name.
+
+For the current local experiment, `kubectl port-forward` connects the client to
+the Order Service. Ingress is deliberately deferred to a later sprint.
 
 ## Health and recovery
 
@@ -63,7 +74,9 @@ stops and the stabilization window passes, it scales the workload back down.
 
 ## Source files
 
+- [`namespace.yaml`](../../k8s/sprint-1/namespace.yaml)
 - [`user-service-deployment.yaml`](../../k8s/sprint-1/user-service-deployment.yaml)
 - [`user-service-service.yaml`](../../k8s/sprint-1/user-service-service.yaml)
 - [`user-service-hpa.yaml`](../../k8s/sprint-1/user-service-hpa.yaml)
 - [`order-service-deployment.yaml`](../../k8s/sprint-1/order-service-deployment.yaml)
+- [`order-service-service.yaml`](../../k8s/sprint-1/order-service-service.yaml)
