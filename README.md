@@ -5,11 +5,7 @@
 
 ## 🎯 Why this project?
 
-I'm learning Kubernetes through hands-on experimentation.
-
-Instead of only studying Kubernetes concepts, I'm building a small
-Java microservices platform and intentionally breaking it to understand
-how Kubernetes reacts.
+A failure-driven Kubernetes laboratory for studying resilience, autoscaling, deployment safety and observability of Java workloads.
 
 The goal is to document the journey from a simple Spring Boot application
 to a more complete Kubernetes-based deployment.
